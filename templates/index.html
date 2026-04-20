@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BU-Flower Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#8b5cf6', // purple-500
+                        'secondary': '#f97316', // orange-500
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-2">BU-Flower Store</h1>
+            <p class="text-secondary">จัดการร้านดอกไม้ของคุณ</p>
+        </header>
+
+        {% if page == 'home' %}
+        <div class="mb-8 text-center">
+            <a href="{{ url_for('categories') }}" class="bg-primary text-white px-6 py-3 rounded-lg mr-4 hover:bg-purple-600 transition">จัดการหมวดหมู่</a>
+            <a href="{{ url_for('flowers') }}" class="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition">จัดการสินค้า</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for flower in flowers %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-br from-purple-200 to-orange-200 h-48 flex items-center justify-center">
+                    <span class="text-6xl">🌸</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-primary mb-2">{{ flower.name }}</h3>
+                    <p class="text-secondary font-medium mb-1">{{ flower.category_name }}</p>
+                    <p class="text-gray-600 mb-1">ราคา: <span class="font-semibold text-green-600">฿{{ "%.2f"|format(flower.price) }}</span></p>
+                    <p class="text-gray-600 mb-4">จำนวน: {{ flower.quantity }} ชิ้น</p>
+                    <div class="flex space-x-2">
+                        <a href="{{ url_for('edit_flower', id=flower.id) }}" class="bg-secondary text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition flex-1 text-center">แก้ไข</a>
+                        <a href="{{ url_for('delete_flower', id=flower.id) }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition flex-1 text-center" onclick="return confirm('ต้องการลบสินค้านี้หรือไม่?')">ลบ</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% elif page == 'categories' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg mr-4 hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+            <a href="{{ url_for('add_category') }}" class="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition">เพิ่มหมวดหมู่</a>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th class="p-4 text-left font-bold">ชื่อหมวดหมู่</th>
+                        <th class="p-4 text-left font-bold">คำอธิบาย</th>
+                        <th class="p-4 text-left font-bold">การดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr class="border-b border-gray-200 hover:bg-purple-50">
+                        <td class="p-4 font-medium">{{ category.name }}</td>
+                        <td class="p-4 text-gray-600">{{ category.description }}</td>
+                        <td class="p-4">
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('edit_category', id=category.id) }}" class="bg-secondary text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition">แก้ไข</a>
+                                <a href="{{ url_for('delete_category', id=category.id) }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition" onclick="return confirm('ต้องการลบหมวดหมู่นี้หรือไม่?')">ลบ</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% elif page == 'flowers' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg mr-4 hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+            <a href="{{ url_for('add_flower') }}" class="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition">เพิ่มสินค้า</a>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th class="p-4 text-left font-bold">ชื่อสินค้า</th>
+                        <th class="p-4 text-left font-bold">หมวดหมู่</th>
+                        <th class="p-4 text-left font-bold">ราคา</th>
+                        <th class="p-4 text-left font-bold">จำนวน</th>
+                        <th class="p-4 text-left font-bold">สถานะ</th>
+                        <th class="p-4 text-left font-bold">การดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flower in flowers %}
+                    <tr class="border-b border-gray-200 hover:bg-purple-50">
+                        <td class="p-4 font-medium">{{ flower.name }}</td>
+                        <td class="p-4 text-secondary">{{ flower.category_name }}</td>
+                        <td class="p-4 font-semibold text-green-600">฿{{ "%.2f"|format(flower.price) }}</td>
+                        <td class="p-4">{{ flower.quantity }}</td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full text-sm {% if flower.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ 'มีจำหน่าย' if flower.is_available else 'หมด' }}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('edit_flower', id=flower.id) }}" class="bg-secondary text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition">แก้ไข</a>
+                                <a href="{{ url_for('delete_flower', id=flower.id) }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition" onclick="return confirm('ต้องการลบสินค้านี้หรือไม่?')">ลบ</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% elif page == 'add_category' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+        </div>
+        <div class="max-w-md mx-auto">
+            <form method="post" class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-primary mb-6 text-center">เพิ่มหมวดหมู่</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ชื่อหมวดหมู่</label>
+                    <input type="text" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">คำอธิบาย</label>
+                    <textarea name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-orange-600 transition font-medium">เพิ่มหมวดหมู่</button>
+            </form>
+        </div>
+        {% elif page == 'add_flower' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+        </div>
+        <div class="max-w-md mx-auto">
+            <form method="post" class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-primary mb-6 text-center">เพิ่มสินค้า</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ชื่อสินค้า</label>
+                    <input type="text" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ราคา (บาท)</label>
+                    <input type="number" step="0.01" name="price" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">จำนวน</label>
+                    <input type="number" name="quantity" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">หมวดหมู่</label>
+                    <select name="category_id" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_available" value="1" checked class="mr-3 w-4 h-4 text-primary focus:ring-primary">
+                        <span class="text-gray-700 font-medium">มีจำหน่าย</span>
+                    </label>
+                </div>
+                <button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-orange-600 transition font-medium">เพิ่มสินค้า</button>
+            </form>
+        </div>
+        {% elif page == 'edit_category' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+        </div>
+        <div class="max-w-md mx-auto">
+            <form method="post" class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-primary mb-6 text-center">แก้ไขหมวดหมู่</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ชื่อหมวดหมู่</label>
+                    <input type="text" name="name" value="{{ category.name }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">คำอธิบาย</label>
+                    <textarea name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">{{ category.description }}</textarea>
+                </div>
+                <button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-orange-600 transition font-medium">บันทึกการเปลี่ยนแปลง</button>
+            </form>
+        </div>
+        {% elif page == 'edit_flower' %}
+        <div class="mb-8">
+            <a href="{{ url_for('index') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">กลับหน้าหลัก</a>
+        </div>
+        <div class="max-w-md mx-auto">
+            <form method="post" class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-primary mb-6 text-center">แก้ไขสินค้า</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ชื่อสินค้า</label>
+                    <input type="text" name="name" value="{{ flower.name }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">ราคา (บาท)</label>
+                    <input type="number" step="0.01" name="price" value="{{ flower.price }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">จำนวน</label>
+                    <input type="number" name="quantity" value="{{ flower.quantity }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">หมวดหมู่</label>
+                    <select name="category_id" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == flower.category_id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_available" value="1" {% if flower.is_available %}checked{% endif %} class="mr-3 w-4 h-4 text-primary focus:ring-primary">
+                        <span class="text-gray-700 font-medium">มีจำหน่าย</span>
+                    </label>
+                </div>
+                <button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-orange-600 transition font-medium">บันทึกการเปลี่ยนแปลง</button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div id="flash-message" class="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(() => {
+                const flash = document.getElementById('flash-message');
+                if (flash) {
+                    flash.style.opacity = '0';
+                    setTimeout(() => flash.remove(), 300);
+                }
+            }, 3000);
+        </script>
+        {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
